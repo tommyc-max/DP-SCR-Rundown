@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SCR 工作坊 Rundown 助手</title>
+<style>
+:root{--bg:#f7f6f2;--card:#fff;--tx:#23302b;--mut:#6b7a73;--ac:#2f7d6b;--bd:#dcdad2;--wn:#b45309;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16201c;--card:#1f2c27;--tx:#e8efeb;--mut:#9fb0a8;--ac:#6cc2ab;--bd:#34443d;--wn:#f5b25c}}
+:root[data-theme="dark"]{--bg:#16201c;--card:#1f2c27;--tx:#e8efeb;--mut:#9fb0a8;--ac:#6cc2ab;--bd:#34443d;--wn:#f5b25c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Noto Sans TC","PingFang HK",sans-serif}
+main{max-width:900px;margin:0 auto;padding:18px 14px 60px}
+h1{font-size:21px;margin:0 0 2px}h2{font-size:16px;margin:22px 0 8px}
+.sub{color:var(--mut);margin:0 0 14px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:2px}
+input,textarea{width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:6px 8px}
+textarea{resize:vertical;min-height:48px}
+.top{display:grid;grid-template-columns:54px 1fr 64px auto;gap:8px;align-items:center;margin-bottom:6px}
+.tm{color:var(--ac);font-size:14px}
+.ctl{display:flex;gap:4px}
+.two{display:grid;grid-template-columns:2fr 1fr;gap:8px}
+@media(max-width:560px){.two{grid-template-columns:1fr}.top{grid-template-columns:48px 1fr 56px}.ctl{grid-column:1/-1}}
+button{font:inherit;border:1px solid var(--ac);background:var(--ac);color:var(--bg);border-radius:8px;padding:7px 12px;cursor:pointer}
+button.o{background:transparent;color:var(--ac)}button.s{padding:2px 8px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+button.on{background:var(--ac);color:var(--bg)}
+#tot{font-weight:600}.warn{color:var(--wn)}
+#out{min-height:300px;font:13px/1.5 ui-monospace,Menlo,"Noto Sans TC",monospace}
+.ck{display:flex;gap:8px;align-items:flex-start;padding:3px 0}.ck input{width:auto;margin-top:5px}
+.ck span{color:var(--mut);min-width:96px;font-size:13px}
+input,textarea,select{font-size:16px}
+.tabs{display:flex;gap:6px;position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0;overflow-x:auto}
+.tabs button{white-space:nowrap}
+.view{display:none}.view.on{display:block}
+.fill label{margin-top:10px}.fill textarea{min-height:96px}
+#ctx{white-space:pre-line}ol{margin:8px 0 0;padding-left:20px}li{margin-bottom:6px}
+.fo .tabs,.fo #v-plan,.fo #v-merge,.fo #v-out,.fo #v-help{display:none!important}
+@media(max-width:700px){main{padding:12px 10px 90px}.tabs{position:fixed;left:0;right:0;bottom:0;top:auto;margin:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--bd);justify-content:space-around}.tabs button{flex:1;padding:8px 4px;font-size:13px}button{min-height:44px}.bar button{flex:1}}
+#st{font-size:13px;color:var(--mut);margin:0 0 12px}
+.mw{position:relative;display:block}.mw input,.mw textarea{padding-right:30px}
+.mic{position:absolute;right:3px;top:2px;padding:0 6px!important;border:0!important;font-size:15px;background:transparent!important}
+select{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:5px}
+.ro .ctl,.ro .mic,.ro #add,.ro #reset{display:none}
+.ro input,.ro textarea:not(#out){pointer-events:none;opacity:.85}
+@media print{.noprint{display:none!important}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<main>
+<h1>北美自在共修圈 SCR · Rundown 助手</h1>
+<p class="sub" id="sub"></p>
+
+<div class="tabs noprint" id="tabs"></div>
+<p id="st"></p>
+<div class="bar noprint" style="margin-top:0"><label style="margin:0;align-self:center">🎤 語音輸入語言</label><select id="lang"><option value="zh-HK">粵語</option><option value="zh-TW">普通話（繁）</option><option value="en-US">English</option></select></div>
+<div class="view" id="v-plan">
+<h2>① 四大必要元素</h2>
+<div class="card"><div class="grid">
+<div><label>系列 / 期數</label><input id="series" placeholder="睇自己系列之《五》"></div>
+<div><label>主題名稱</label><input id="theme"></div>
+<div><label>副標題</label><input id="subt"></div>
+<div><label>日期 Date (PT)</label><input id="date" type="date"></div>
+<div><label>開始時間 (PT)</label><input id="start" type="time"></div>
+<div><label>問卷連結</label><input id="surv"></div>
+<div><label>WhatsApp 廣播群組連結</label><input id="wa"></div>
+</div>
+<div style="margin-top:10px"><label>內容 / 方向 / 切入點（供 MC、嘉賓、靜心組）</label><textarea id="dir" placeholder="3–4 點即可"></textarea></div></div>
+
+<h2>② 流程表</h2>
+<div id="rows"></div>
+<div class="bar noprint"><button class="o" id="add">＋ 加一個環節</button><span id="tot"></span></div>
+
+<h2>③ 籌備時間線</h2>
+<div class="card" id="ck"></div>
+
+</div>
+<div class="view" id="v-out">
+<h2>④ 輸出</h2>
+<div class="bar noprint" id="modes"></div>
+<textarea id="out" readonly></textarea>
+<div class="bar noprint"><button id="copy">複製</button><button class="o" id="print">列印</button><button class="o" id="reset">重設全部</button></div>
+<h2>🗂 版本紀錄</h2>
+<p class="sub" id="hs-n"></p>
+<div class="bar noprint"><button id="hsave">📌 儲存目前版本</button><button class="o" id="bk">⬇ 下載備份</button></div>
+<div class="card noprint"><label>⬆ 載入備份檔案（會覆蓋呢部機而家嘅內容）</label><input type="file" id="rs" accept=".json"></div>
+<div id="hs"></div>
+</div>
+<div class="view" id="v-fill">
+<h2>📝 分享你嘅想法</h2>
+<p class="sub" id="ctx"></p>
+<div class="card fill">
+<label>你嘅名字</label><input id="sf-n" autocomplete="name" placeholder="方便我哋跟進">
+<label>你負責邊個小組？（選填）</label><input id="sf-g" placeholder="例如：Rundown 組、MC 組、靜心組">
+<label>① 今個月主題，你建議點樣切入？</label><textarea id="sf-a" placeholder="例如：用邊個生活例子開頭、想帶出嘅重點"></textarea>
+<label>② 有冇適合嘅影片？</label><textarea id="sf-v" placeholder="影片名稱、連結、點解適合"></textarea>
+<label>③ 反思練習：想問參加者咩問題？</label><textarea id="sf-q" placeholder="1–2 條就得"></textarea>
+<label>④ 分組討論：想用邊啲題目？</label><textarea id="sf-b" placeholder="1–3 條就得"></textarea>
+<label>⑤ 其他建議（嘉賓、靜心、時間安排等）</label><textarea id="sf-x"></textarea>
+<p class="sub" id="sf-st" style="margin-top:10px">填寫內容會自動儲存喺呢部機，之後可以再返嚟修改。</p>
+</div>
+<div class="card"><b>填完之後，傳俾負責人</b>
+<p class="sub">㩒下面其中一個掣，會整好一段訊息（連同資料代碼）。請唔好修改最尾嗰行 SCR1: 開頭嘅代碼。</p>
+<div class="bar noprint"><button id="sh-wa">傳去 WhatsApp</button><button class="o" id="sh-mail">電郵</button><button class="o" id="sh-cp">複製訊息</button></div></div></div>
+<div class="view" id="v-merge">
+<h2>🧩 義工建議（已彙整）</h2>
+<p class="sub" id="mg-n"></p><div id="mg"></div>
+<div class="card"><label>貼上義工傳嚟嘅訊息（可以一次貼多個）</label><textarea id="paste" placeholder="將 WhatsApp／電郵入面成段訊息貼喺度，包括最尾嗰行 SCR1: 代碼"></textarea>
+<div class="bar noprint"><button id="padd">加入</button><button class="o" id="pself">加入我自己嘅建議</button><button class="o" id="pclr">清除全部</button></div><p class="sub" id="pmsg"></p></div>
+<div class="bar noprint"><button class="o" id="mgcopy">複製全部建議</button></div>
+<div class="card"><b>✨ AI 彙整（免費做法）</b>
+<ol><li>㩒「複製 AI 指令」</li><li>貼去你慣用嘅 AI 聊天工具，等佢回覆</li><li>將佢嘅回覆成段貼喺下面，㩒「讀取 AI 回覆」</li></ol>
+<div class="bar noprint"><button id="aip">複製 AI 指令</button></div>
+<textarea id="aiin" placeholder="喺度貼上 AI 嘅回覆"></textarea>
+<div class="bar noprint"><button class="o" id="aiok">讀取 AI 回覆</button></div></div>
+<div id="aibox"></div></div>
+<div class="view" id="v-help">
+<h2>❓ 使用步驟</h2>
+<div class="card"><b>負責人（整理 Rundown）</b>
+<ol>
+<li>去「📋 流程表」，填主題、副標題、日期、開始時間（未定都得）。</li>
+<li>將網站連結尾加上 <b>#fill</b> 發俾義工（例如 https://你嘅網址/#fill），佢哋只會見到填寫表。</li>
+<li>義工填完，會㩒「傳去 WhatsApp／電郵」，將訊息傳返俾你。</li>
+<li>去「🧩 彙整」，將收到嘅訊息成段貼入去，㩒「加入」。</li>
+<li>㩒「複製 AI 指令」，貼去你慣用嘅 AI 聊天工具，再將回覆貼返嚟，㩒「讀取 AI 回覆」。</li>
+<li>用「→ ①」「→ ②」掣套用到流程表，再喺「📋 流程表」微調。</li>
+<li>去「📤 輸出」複製；㩒「📌 儲存目前版本」；亦可以「⬇ 下載備份」。</li>
+</ol></div>
+<div class="card"><b>義工</b>
+<ol>
+<li>開負責人發嘅連結。</li>
+<li>填名字同你嘅想法，唔識打字可以㩒 🎤 講出嚟。</li>
+<li>㩒「傳去 WhatsApp」或「電郵」，將訊息傳返俾負責人。</li>
+</ol></div>
+<div class="card"><b>點樣免費放上網</b>
+<ol>
+<li><b>GitHub Pages：</b>開 GitHub 帳戶 → New repository（揀 Public）→ Add file → Upload files，上載 index.html → Settings → Pages → 揀 Deploy from a branch，Branch 揀 main → Save。等一兩分鐘就有網址。</li>
+<li><b>Netlify Drop：</b>將放咗 index.html 嘅資料夾拖入 Netlify Drop 頁面，即時有網址。</li>
+<li>以上通常都有免費方案；介面可能會更新，請以官方畫面為準。</li>
+<li>放上網之後，義工用網址 + #fill 就可以直接開啟。</li>
+</ol></div>
+<div class="card"><b>要知道</b>
+<ol>
+<li>呢個版本冇共用資料庫：每個人嘅資料只存喺自己部機嘅瀏覽器，所以義工要傳訊息俾你。</li>
+<li>換機或交接，請用「下載備份」同「載入備份」。</li>
+<li>清除瀏覽器資料會刪走已儲存內容，建議定期備份。</li>
+</ol></div>
+</div>
+</main>
+<script>
+var $=function(i){return document.getElementById(i)};
+var D=[
+["開場：主持互相認識、天氣報告、基本守則",6,"主持 / Slides / Chatbox(守則) / Zoom Tech","自我介紹 / 天氣報告\n自在社 DP 背景介紹\n主題介紹 + 平台守則",""],
+["開場靜心",3,"靜心帶領 / 音樂","",""],
+["主題介紹 Part 1（生活化例子作引子）",4,"主持","",""],
+["反思互動練習",6,"主持 / Slides","反思問題 1：\n反思問題 2：\n(預備紙、筆)",""],
+["短片播放",4,"主持 / 播片","影片名稱 + 連結：",""],
+["短片撮要",1,"主持","",""],
+["主題介紹 Part 2",5,"主持","",""],
+["分組前說明",2,"主持 / Slides / Zoom Breakout","提醒開鏡頭\n分組時間 20 分鐘\n鼓勵之後大組分享",""],
+["嘉賓分享 #1",5,"嘉賓","",""],
+["第 1 次分組討論 Breakout #1",20,"主持 / Slides / Chatbox(題目)","討論題目：\n組長小貼士：",""],
+["大組 Q&A 及分享",10,"主持 / 工作團隊","",""],
+["短片播放 #2",4,"主持 / 播片","影片名稱 + 連結：",""],
+["短片撮要 #2",1,"主持","",""],
+["嘉賓分享 #2",5,"嘉賓","",""],
+["分組前說明 #2",2,"主持 / Slides / Zoom Breakout","",""],
+["第 2 次分組討論 Breakout #2",20,"主持 / Slides / Chatbox(題目)","討論題目：\n組長小貼士：",""],
+["大組 Q&A 及分享 #2",10,"主持 / 工作團隊","",""],
+["整體總結 + 下堂預告",4,"主持 / 嘉賓","總結 3 點：\n下堂預告：",""],
+["結尾靜心",3,"靜心帶領 / 音樂","",""],
+["感謝參與：填寫問卷",2,"主持 / Slides / Chatbox(連結)","","surv"],
+["公告：WhatsApp 群組、即將舉行活動",3,"主持 / Slides / Chatbox(連結)","","wa"],
+["SCR ends — 多謝參與",0,"Slides","",""],
+["Debriefing",30,"全體工作團隊","",""]
+];
+var KEY="scr-rundown-v3",PT="America/Los_Angeles",DB=null,CAN=true,TM={},PEND={},SH=0;
+function mk(d,i){return{id:"r"+("0"+(i+1)).slice(-2),o:(i+1)*10,t:d[0],m:d[1],h:d[2],c:d[3],k:d[4],p:""}}
+function fresh(){return{lang:"zh-HK",f:{start:"17:00",surv:"https://forms.gle/4xpTw66NGY7UNCcX6",wa:"https://chat.whatsapp.com/F2PqBq9brbjFjOXHnpFch2"},r:D.map(mk),ck:{},mode:"text"}}
+var S=fresh();
+try{var raw=localStorage.getItem(KEY);if(raw){var q=JSON.parse(raw);if(q&&q.r&&q.f)S=q}}catch(e){}
+var F=["series","theme","subt","date","start","surv","wa","dir"];
+var CK=[[-21,"第 1 次籌備會議：定切入點"],[-14,"第 2 次籌備會議：定影片 / 練習 / 分組題目"],[-10,"Rundown Preview 發佈（最遲 7–10 日前）"],[-7,"廣告組：海報、文案、AI 短片出街"],[-3,"Zoom Support：影片、PPT、音樂 final check"],[-1,"MC 與嘉賓、靜心組對焦"],[0,"工作坊當日 + Debriefing"],[1,"WhatsApp 跟進、向香港 DP 匯報"]];
+var MODES=[["text","文字版"],["tsv","Excel 貼上"],["tz","時區公告"],["hand","跨組交付"]];
+var ZN=[["香港","Asia/Hong_Kong"],["北美西岸 (PT)","America/Los_Angeles"],["北美東岸 (ET)","America/New_York"],["溫哥華 BC（同北美西岸）","America/Vancouver"],["澳洲（雪梨／墨爾本）","Australia/Sydney"]];
+var RZ=[["PT/溫哥華","America/Los_Angeles"],["ET","America/New_York"],["香港","Asia/Hong_Kong"],["雪梨","Australia/Sydney"]];
+var WD="日一二三四五六";
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function later(k,fn){PEND[k]=1;clearTimeout(TM[k]);TM[k]=setTimeout(function(){delete PEND[k];fn()},700)}
+function rd(r){return{t:r.t,m:+r.m||0,h:r.h||"",c:r.c||"",k:r.k||"",p:r.p||"",o:r.o}}
+function pushRow(r){save();if(DB&&CAN)later(r.id,function(){DB.doc("rows/"+r.id).set(rd(r)).catch(function(){})})}
+function pushHdr(){save();if(DB&&CAN)later("hdr",function(){DB.doc("plan/header").set({f:S.f,ck:S.ck}).catch(function(){})})}
+function p2(n){return(n<10?"0":"")+n}
+function fm(x){x=((x%1440)+1440)%1440;return p2(Math.floor(x/60))+":"+p2(x%60)}
+function tmin(t){var a=(t||"17:00").split(":");return(+a[0])*60+(+a[1])}
+function V(k){return S.f[k]||""}
+
+function renderRows(){
+  var h="";
+  S.r.forEach(function(r,i){
+    var a='data-i="'+i+'"';
+    h+='<div class="card"><div class="top"><b class="tm" id="tm'+i+'"></b><input '+a+' data-k="t" value="'+esc(r.t)+'"><input type="number" min="0" '+a+' data-k="m" value="'+esc(r.m)+'"><span class="ctl noprint"><button class="o s" '+a+' data-a="up">↑</button><button class="o s" '+a+' data-a="dn">↓</button><button class="o s" '+a+' data-a="del">✕</button></span></div>'+
+    '<div class="two"><textarea '+a+' data-k="c" placeholder="3–4 點核心指引、連結">'+esc(r.c)+'</textarea><input '+a+' data-k="p" placeholder="'+esc(r.h)+'" value="'+esc(r.p)+'"></div></div>';
+  });
+  $("rows").innerHTML=h;wrap($("rows"));
+}
+function renderCk(){
+  var h="";
+  CK.forEach(function(c,i){h+='<label class="ck"><input type="checkbox" data-ck="'+i+'"'+(S.ck[i]?" checked":"")+'><span id="cd'+i+'"></span>'+c[1]+'</label>'});
+  $("ck").innerHTML=h;
+}
+function renderModes(){
+  $("modes").innerHTML=MODES.map(function(m){return'<button class="o'+(S.mode===m[0]?" on":"")+'" data-mode="'+m[0]+'">'+m[1]+'</button>'}).join("");
+}
+function dstr(ds,off){
+  if(!ds)return off===0?"T":"T"+(off>0?"+":"")+off;
+  var d=ds.split("-"),t=new Date(Date.UTC(+d[0],+d[1]-1,+d[2]+off));
+  return(t.getUTCMonth()+1)+"/"+t.getUTCDate()+"（"+WD[t.getUTCDay()]+"）";
+}
+function offs(ms,tz){
+  var o={};new Intl.DateTimeFormat("en-US",{timeZone:tz,hourCycle:"h23",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric"}).formatToParts(new Date(ms)).forEach(function(x){o[x.type]=+x.value});
+  return Date.UTC(o.year,o.month-1,o.day,o.hour,o.minute)-ms;
+}
+function inst(ds,mins,tz){
+  var d=ds.split("-"),w=Date.UTC(+d[0],+d[1]-1,+d[2],0,mins),g=w;
+  for(var k=0;k<2;k++)g=w-offs(g,tz);
+  return g;
+}
+function loc(ms,tz){
+  var o={};new Intl.DateTimeFormat("en-US",{timeZone:tz,hourCycle:"h23",day:"numeric",hour:"numeric",minute:"numeric"}).formatToParts(new Date(ms)).forEach(function(x){o[x.type]=+x.value});
+  return{s:(o.hour%12||12)+":"+p2(o.minute)+" "+(o.hour>=12?"pm":"am"),d:o.day};
+}
+function zt(ds,mins){var a=inst(ds,mins,PT),pd=loc(a,PT).d;return RZ.map(function(z){var x=loc(a,z[1]);return x.s+(x.d!==pd?" (+1)":"")})}
+function W(){var s=0;S.r.forEach(function(r){if(!/^Debrief/i.test(r.t))s+=Math.max(0,+r.m||0)});return s}
+function times(){var t=tmin(V("start")),a=[];S.r.forEach(function(r){a.push(t);t+=Math.max(0,+r.m||0)});return a}
+
+function build(){
+  var T=times(),L=[],ser=V("series"),ds=V("date"),OK=ds&&/^\d{2}:\d{2}$/.test(V("start")),Z=function(i){return zt(ds,T[i])};
+  var head="SCR "+(ds?dstr(ds,0)+" ":"")+"工作坊 "+ser+(V("theme")?"："+V("theme"):"");
+  var lk=function(k){return k==="surv"?"問卷："+V("surv"):k==="wa"?"WhatsApp 廣播群組："+V("wa"):""};
+  if(S.mode==="text"){
+    L.push(head);if(V("subt"))L.push("副主題："+V("subt"));if(V("dir"))L.push("切入點："+V("dir").replace(/\n/g,"；"));L.push("");
+    S.r.forEach(function(r,i){
+      var z=OK?Z(i):null;L.push((z?z[0]+" PT":fm(T[i]))+"（"+(+r.m||0)+" min）"+r.t+(r.p?" — "+r.p:""));if(z)L.push("   ⏰ ET "+z[1]+"｜香港 "+z[2]+"｜雪梨 "+z[3]);
+      var c=(r.c||"").split("\n").filter(Boolean);if(r.k)c.push(lk(r.k));
+      c.forEach(function(x){L.push("   • "+x)});
+    });
+  }else if(S.mode==="tsv"){
+    L.push(["Time PT/溫哥華","ET 北美東岸","香港 HK","澳洲 雪梨","Duration (min)","Activities / Description","Person in Charge / Notes"].join("\t"));
+    L.push(["","","","","",head+(V("subt")?"　副主題："+V("subt"):""),""].join("\t"));
+    S.r.forEach(function(r,i){
+      var c=r.t+((r.c||r.k)?"\n"+(r.c||"")+(r.k?"\n"+lk(r.k):""):"");
+      var z=OK?Z(i):[fm(T[i]),"","",""];L.push([z[0],z[1],z[2],z[3],r.m,'"'+c.replace(/"/g,'""')+'"','"'+(r.p||"").replace(/"/g,'""')+'"'].join("\t"));
+    });
+  }else if(S.mode==="tz"){
+    if(!OK)L.push("請先在①填寫日期同開始時間。");
+    else{
+      var s=tmin(V("start")),a=inst(ds,s,ZN[0][1]),b=inst(ds,s+W(),ZN[0][1]),pd=loc(a,ZN[0][1]).d;
+      var d=ds.split("-");
+      L.push("SCR "+(+d[1])+" 月線上工作坊",dstr(ds,0),"");
+      ZN.forEach(function(z){var x=loc(a,z[1]),y=loc(b,z[1]);L.push(z[0]+"："+x.s+" – "+y.s+(x.d!==pd?"（翌日）":""))});
+    }
+  }else{
+    L.push("【廣告組】主題："+V("theme")+"｜副標題："+V("subt")+"｜"+(ds?dstr(ds,0):"")+" "+V("start")+" PT","");
+    L.push("【MC / 嘉賓 / 靜心組】切入點：",V("dir")||"（未填）","");
+    L.push("【Zoom Support】影片 / 連結：");
+    S.r.forEach(function(r,i){if(/短片|影片/.test(r.t)||r.k)L.push(fm(T[i])+" "+r.t+(r.c?"："+r.c.replace(/\n/g," "):"")+(r.k?"："+lk(r.k):""))});
+    L.push("","【分組討論題目】");
+    S.r.forEach(function(r){if(/Breakout/i.test(r.t)&&r.c)L.push(r.t+"：",r.c)});
+  }
+  $("out").value=L.join("\n");
+}
+function update(){
+  var T=times(),w=W();
+  S.r.forEach(function(r,i){var e=$("tm"+i);if(e)e.textContent=fm(T[i])});
+  var diff=w-120;
+  $("tot").innerHTML="正式時長 "+w+" 分鐘（"+V("start")+" – "+fm(tmin(V("start"))+w)+"）"+(diff?' <span class="warn">⚠ 同標準 120 分鐘相差 '+(diff>0?"+":"")+diff+"</span>":" ✓");
+  CK.forEach(function(c,i){var e=$("cd"+i);if(e)e.textContent=dstr(V("date"),c[0])});
+  $("ctx").textContent=V("theme")?"本月主題："+V("theme")+(V("subt")?"（"+V("subt")+"）":"")+(V("dir")?"\n切入點："+V("dir"):""):"本月主題未定，歡迎自由提出建議。";
+  build();
+}
+$("rows").addEventListener("input",function(e){var t=e.target,i=t.getAttribute("data-i");if(i!==null){var r=S.r[+i];r[t.getAttribute("data-k")]=t.value;pushRow(r);update()}});
+$("rows").addEventListener("click",function(e){
+  var t=e.target,a=t.getAttribute("data-a"),i=+t.getAttribute("data-i");if(!a)return;
+  var j=a==="up"?i-1:i+1;
+  if(a==="del"){if(!confirm("刪除呢個環節？"))return;var d=S.r.splice(i,1)[0];save();if(DB&&CAN)DB.doc("rows/"+d.id).delete().catch(function(){})}
+  else if(j>=0&&j<S.r.length){var x=S.r[i],y=S.r[j],o=x.o;x.o=y.o;y.o=o;S.r[i]=y;S.r[j]=x;pushRow(x);pushRow(y)}
+  renderRows();update();
+});
+$("add").onclick=function(){var n=S.r.length,o=n>1?(S.r[n-2].o+S.r[n-1].o)/2:10,r={id:"n"+Date.now().toString(36),o:o,t:"新環節",m:5,p:"",h:"",c:"",k:""};S.r.splice(n-1,0,r);pushRow(r);renderRows();update()};
+$("ck").addEventListener("change",function(e){var i=e.target.getAttribute("data-ck");if(i!==null){S.ck[i]=e.target.checked;pushHdr()}});
+$("modes").addEventListener("click",function(e){var m=e.target.getAttribute("data-mode");if(m){S.mode=m;save();renderModes();update()}});
+F.forEach(function(k){var e=$(k);e.value=S.f[k]||"";e.addEventListener("input",function(){S.f[k]=e.value;pushHdr();update()})});
+$("copy").onclick=function(){
+  var o=$("out");o.select();
+  try{navigator.clipboard.writeText(o.value).then(function(){},function(){document.execCommand("copy")})}catch(e){document.execCommand("copy")}
+  $("copy").textContent="已複製 ✓";setTimeout(function(){$("copy").textContent="複製"},1800);
+};
+$("print").onclick=function(){window.print()};
+$("reset").onclick=function(){
+  if(!confirm("清除所有內容並回復標準流程？"+(DB?"（所有人都會見到）":"")))return;
+  if(DB&&CAN){var fr=fresh(),p=Promise.resolve();SH=0;DB.doc("plan/header").set({f:fr.f,ck:{}});S.r.map(function(r){return r.id}).forEach(function(id){p=p.then(function(){return DB.doc("rows/"+id).delete()})});p.catch(function(){})}
+  else{try{localStorage.removeItem(KEY)}catch(e){}location.reload()}
+};
+function seed(){if(!CAN||SH)return;SH=1;var p=Promise.resolve();D.forEach(function(d,i){var r=mk(d,i);p=p.then(function(){return DB.doc("rows/"+r.id).set(rd(r))})});p.catch(function(){})}
+function patch(){S.r.forEach(function(r,i){["t","m","c","p"].forEach(function(k){var e=document.querySelector('[data-i="'+i+'"][data-k="'+k+'"]'),v=String(r[k]==null?"":r[k]);if(e&&e!==document.activeElement&&e.value!==v)e.value=v})})}
+function wrap(root){root.querySelectorAll("input,textarea").forEach(function(e){if(e.id==="out"||e.id==="surv"||e.id==="wa"||(e.type&&e.type!=="text"&&e.tagName==="INPUT")||e.parentNode.className==="mw")return;var w=document.createElement("span");w.className="mw";e.parentNode.insertBefore(w,e);w.appendChild(e);var b=document.createElement("button");b.type="button";b.className="mic o";b.textContent="🎤";w.appendChild(b)})}
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition,REC=null;
+document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest(".mic");if(b)mic(b.parentNode.querySelector("input,textarea"),b)});
+function mic(el,b){
+  if(!SR){alert("呢個瀏覽器唔支援網頁語音輸入。請用手機鍵盤上嘅 🎤 麥克風做語音輸入（iPhone、Android 都支援廣東話）。");return}
+  if(REC){REC.stop();return}
+  var r=new SR();REC=r;r.lang=S.lang||"zh-HK";r.interimResults=false;r.continuous=false;b.textContent="⏺";
+  r.onresult=function(ev){var t=ev.results[0][0].transcript;el.value+=(el.value&&el.tagName==="TEXTAREA"?"\n":"")+t;el.dispatchEvent(new Event("input",{bubbles:true}))};
+  r.onerror=function(ev){if(ev.error==="not-allowed"||ev.error==="service-not-allowed")alert("未能使用麥克風。請容許麥克風權限，或改用手機鍵盤上嘅 🎤。")};
+  r.onend=function(){b.textContent="🎤";REC=null};
+  try{r.start()}catch(x){REC=null;b.textContent="🎤"}
+}
+$("lang").value=S.lang||"zh-HK";$("lang").onchange=function(){S.lang=this.value;save()};
+
+var SUBT={fill:"歡迎分享你對今個月工作坊嘅想法。唔使寫得完整，一句、幾點都得。唔識打字，可以㩒 🎤 講出嚟。",merge:"將義工傳嚟嘅訊息貼入去，睇晒所有想法，再用 AI 整理成建議草稿。",plan:"流程：義工填寫 → 傳俾負責人 → 彙整＋AI → 喺呢度逐段微調 → 輸出。",out:"揀一種格式，㩒「複製」，貼去 WhatsApp、Excel 或公告。想保留記錄，請儲存版本。",help:"由收集想法到輸出流程表，以及點樣免費放上網。"};
+var TABS=[["fill","📝 填寫"],["merge","🧩 彙整"],["plan","📋 流程表"],["out","📤 輸出"],["help","❓ 說明"]],FO=location.hash==="#fill",SUBS=[],AI=null,UID=null,SK=["n","g","a","v","q","b","x"],SL={a:"切入點／方向",v:"影片建議",q:"反思練習問題",b:"分組討論題目",x:"其他"};
+if(FO)document.body.classList.add("fo");
+$("tabs").innerHTML=TABS.map(function(t){return'<button class="o" data-t="'+t[0]+'">'+t[1]+'</button>'}).join("");
+function route(){var h=location.hash.replace("#","");if(FO||!/^(fill|merge|plan|out|help)$/.test(h))h=FO?"fill":"plan";TABS.forEach(function(t){$("v-"+t[0]).classList.toggle("on",t[0]===h)});$("sub").textContent=SUBT[h];Array.prototype.forEach.call($("tabs").children,function(b){b.classList.toggle("on",b.getAttribute("data-t")===h)})}
+$("tabs").addEventListener("click",function(e){var t=e.target.getAttribute("data-t");if(t){if(location.hash==="#"+t)route();else location.hash=t}});
+window.addEventListener("hashchange",route);route();
+function cp(t,b){var o=document.createElement("textarea");o.value=t;document.body.appendChild(o);o.select();try{navigator.clipboard.writeText(t).catch(function(){document.execCommand("copy")})}catch(e){document.execCommand("copy")}document.body.removeChild(o);var x=b.textContent;b.textContent="已複製 ✓";setTimeout(function(){b.textContent=x},1600)}
+function mine(){var o={};SK.forEach(function(k){o[k]=$("sf-"+k).value});return o}
+SK.forEach(function(k){$("sf-"+k).addEventListener("input",function(){
+  var o=mine();try{localStorage.setItem("scr-sub-v1",JSON.stringify(o))}catch(e){}
+  if(!DB||!CAN||!UID){$("sf-st").textContent="✓ 已儲存喺呢部機。填完請㩒下面掣，傳俾負責人。";return}
+  $("sf-st").textContent="⏳ 儲存中…";
+  later("sub",function(){o.ts=Date.now();DB.doc("submissions/"+UID).set(o).then(function(){$("sf-st").textContent="✓ 已自動提交，隨時可以再修改"}).catch(function(){$("sf-st").textContent="⚠ 未能提交，請檢查你有冇編輯權限"})})
+})});
+try{var ms=JSON.parse(localStorage.getItem("scr-sub-v1")||"null");if(ms)SK.forEach(function(k){$("sf-"+k).value=ms[k]||""})}catch(e){}
+function loadMine(){if(!UID||SK.some(function(k){return $("sf-"+k).value}))return;var m=SUBS.filter(function(x){return x.id===UID})[0];if(m)SK.forEach(function(k){$("sf-"+k).value=m[k]||""})}
+function subText(x){var L=["【"+(x.n||"未留名")+(x.g?"（"+x.g+"）":"")+"】"];["a","v","q","b","x"].forEach(function(k){if(x[k])L.push(SL[k]+"：\n"+x[k])});return L.join("\n")}
+function has(x){return SK.some(function(k){return x[k]})}
+function renderMerge(){
+  var n=SUBS.filter(has).length;
+  $("mg-n").textContent=n?"已收到 "+n+" 位義工建議":"未有義工提交。請將分享連結（尾加 #fill）發俾義工。";
+  $("mg").innerHTML=SUBS.filter(has).map(function(x){var h='<div class="card"><b>'+esc(x.n||"未留名")+'</b> <span class="sub">'+esc(x.g||"")+'</span>';["a","v","q","b","x"].forEach(function(k){if(x[k])h+='<p style="margin:6px 0 0"><span class="sub">'+SL[k]+'</span><br>'+esc(x[k]).replace(/\n/g,"<br>")+'</p>'});return h+'</div>'}).join("")
+}
+$("mgcopy").onclick=function(){cp(SUBS.filter(has).map(subText).join("\n\n"),this)};
+var AK=[["theme","主題建議","→ ① 主題"],["subt","副標題","→ ① 副標題"],["dir","切入點","→ ① 切入點"],["reflect","反思練習問題","→ ② 反思練習"],["videos","影片建議","→ ② 短片播放"],["bo1","第 1 次分組題目","→ ② Breakout #1"],["bo2","第 2 次分組題目","→ ② Breakout #2"],["notes","提醒／缺口／衝突",""]];
+var MAP={reflect:/反思互動練習/,videos:/^短片播放$/,bo1:/Breakout #1/,bo2:/Breakout #2/};
+function setF(k,v){S.f[k]=v;$(k).value=v;pushHdr()}
+function setRow(re,v){var r=S.r.filter(function(x){return re.test(x.t)})[0];if(r){r.c=v;pushRow(r)}}
+function ap(k){var v=$("ai-"+k).value;
+  if(k==="theme")setF("theme",v.split("\n")[0].replace(/^[\d.、\s\-•]+/,""));
+  else if(k==="subt")setF("subt",v.split("\n")[0]);
+  else if(k==="dir")setF("dir",v);
+  else setRow(MAP[k],v);
+  renderRows();update()}
+function renderAI(){
+  var h='<h2>✨ AI 建議（可先修改，再套用）</h2>';
+  AK.forEach(function(a){h+='<div class="card"><label>'+a[1]+'</label><textarea id="ai-'+a[0]+'">'+esc(AI[a[0]]||"")+'</textarea>'+(a[2]?'<div class="bar noprint"><button class="o" data-ap="'+a[0]+'">'+a[2]+'</button></div>':"")+'</div>'});
+  h+='<div class="bar noprint"><button id="apall">全部套用到 ①②</button><button class="o" id="aicopy">複製 AI 建議</button></div>';
+  $("aibox").innerHTML=h;wrap($("aibox"))
+}
+$("aibox").addEventListener("click",function(e){var t=e.target,k=t.getAttribute("data-ap");
+  if(k)ap(k);
+  else if(t.id==="apall"){if(confirm("會覆蓋流程表入面對應嘅內容，確定？"))AK.forEach(function(a){if(a[2])ap(a[0])})}
+  else if(t.id==="aicopy")cp(AK.map(function(a){return"【"+a[1]+"】\n"+$("ai-"+a[0]).value}).join("\n\n"),t)});
+function aiPrompt(){
+  var list=SUBS.filter(has);
+  return "你係自在社 Dreams Possible「北美自在共修圈 SCR」線上工作坊嘅 Rundown 組助手。以下係義工提交嘅建議，請彙整成一份建議草稿。\n本月主題："+(V("theme")||"未定")+"；副標題："+(V("subt")||"未定")+"；現有切入點："+(V("dir")||"未定")+"\n要求：\n- 緊扣「正念、coaching、self-coaching、自我接納」\n- 合併相似建議，保留有創意嘅，可以標示提出者名字\n- 唔寫逐字稿，每項只寫 3–4 點\n- 影片只可以用義工提供嘅名稱同連結，唔好自己創造；冇就寫「未有建議」\n- 語言：港式書面中文\n- 建議互相矛盾或欠缺資料，寫喺 notes\n只輸出 JSON（唔好加 ``` 或其他文字），欄位全部係字串（多行用 \\n）：theme（主題建議，2–3 個選項，每行一個）、subt、dir（切入點）、reflect（反思問題 2–3 條）、videos（每行：名稱｜連結｜點解合適｜提出者）、bo1（第1次分組題目 2–3 條）、bo2（第2次分組題目 2–3 條）、notes。\n\n義工提交：\n"+JSON.stringify(list.map(function(x){return{name:x.n,group:x.g,entry:x.a,video:x.v,reflect:x.q,breakout:x.b,other:x.x}}))
+}
+$("aip").onclick=function(){if(!SUBS.filter(has).length){alert("未有義工建議，請先喺上面加入。");return}cp(aiPrompt(),this)};
+$("aiok").onclick=function(){var t=$("aiin").value,a=t.indexOf("{"),b=t.lastIndexOf("}");
+  try{AI=JSON.parse(t.slice(a,b+1));AIS=JSON.stringify(AI);renderAI();$("aibox").scrollIntoView()}catch(e){alert("睇唔明呢段回覆。請確認 AI 有輸出 JSON，並且成段貼晒。")}};
+
+var HIST=[],AIS="";
+function histRec(label){return{ts:Date.now(),label:label,f:JSON.parse(JSON.stringify(S.f)),ck:JSON.parse(JSON.stringify(S.ck)),r:S.r.map(function(r){var o=rd(r);o.id=r.id;return o}),subs:SUBS.filter(has).map(function(x){return{n:x.n||"",g:x.g||"",a:x.a||"",v:x.v||"",q:x.q||"",b:x.b||"",x:x.x||""}}),ai:AI||null}}
+function histText(h){var L=["【"+h.label+"】"+new Date(h.ts).toLocaleString("zh-HK"),"主題："+(h.f.theme||"")+(h.f.subt?" / "+h.f.subt:""),"切入點："+(h.f.dir||""),"","── 義工建議 ──"];(h.subs||[]).forEach(function(x){L.push(subText(x),"")});if(h.ai){L.push("── AI 建議 ──");AK.forEach(function(a){if(h.ai[a[0]])L.push("【"+a[1]+"】\n"+h.ai[a[0]])})}L.push("","── 流程表 ──");var t=tmin(h.f.start||"17:00");(h.r||[]).forEach(function(r){L.push(fm(t)+"（"+(+r.m||0)+" min）"+r.t+(r.p?" — "+r.p:""));(r.c||"").split("\n").filter(Boolean).forEach(function(c){L.push("   • "+c)});t+=Math.max(0,+r.m||0)});return L.join("\n")}
+function renderHist(){
+  $("hs-n").textContent=HIST.length?"已儲存 "+HIST.length+" 個版本（包括當時所有義工建議同流程表）。":"未有版本。想保留而家嘅內容，請㩒「儲存目前版本」。";
+  $("hs").innerHTML=HIST.map(function(h,i){return'<div class="card"><b>'+esc(h.label)+'</b><div class="sub">'+new Date(h.ts).toLocaleString("zh-HK")+'｜流程表 '+(h.r||[]).length+' 段｜義工建議 '+(h.subs||[]).length+' 份</div><div class="bar noprint"><button class="o" data-h="'+i+'" data-x="restore">還原呢個版本</button><button class="o" data-h="'+i+'" data-x="copy">複製內容</button><button class="o" data-h="'+i+'" data-x="del">刪除</button></div></div>'}).join("")
+}
+function restore(h){
+  if(!confirm("會用「"+h.label+"」覆蓋而家嘅流程表同基本資料（義工建議唔受影響）。確定？"))return;
+  S.f=JSON.parse(JSON.stringify(h.f));S.ck=h.ck||{};
+  var nr=(h.r||[]).map(function(x){return Object.assign({},x)});
+  if(DB&&CAN){var p=Promise.resolve(),keep={};nr.forEach(function(r){keep[r.id]=1});
+    DB.doc("plan/header").set({f:S.f,ck:S.ck});
+    S.r.forEach(function(r){if(!keep[r.id])p=p.then(function(){return DB.doc("rows/"+r.id).delete()})});
+    nr.forEach(function(r){p=p.then(function(){return DB.doc("rows/"+r.id).set(rd(r))})});
+    p.catch(function(){})}
+  S.r=nr;F.forEach(function(k){$(k).value=S.f[k]||""});renderRows();renderCk();update();save()
+}
+$("hsave").onclick=function(){
+  var lb=prompt("版本名稱（例如：Rundown Preview 初稿）",(V("theme")||"版本")+" "+new Date().toLocaleDateString("zh-HK"));if(!lb)return;
+  var rec=histRec(lb),id="h"+Date.now().toString(36);
+  if(DB&&CAN)DB.doc("history/"+id).set(rec).catch(function(){alert("未能儲存版本")});
+  else{rec.id=id;S.hist=S.hist||[];S.hist.unshift(rec);HIST=S.hist;save();renderHist()}
+};
+$("hs").addEventListener("click",function(e){var t=e.target,i=t.getAttribute("data-h"),a=t.getAttribute("data-x");if(i===null||!a)return;var h=HIST[+i];
+  if(a==="restore")restore(h);
+  else if(a==="copy")cp(histText(h),t);
+  else if(a==="del"&&confirm("刪除呢個版本？")){if(DB&&CAN)DB.doc("history/"+h.id).delete().catch(function(){});else{S.hist.splice(+i,1);HIST=S.hist;save();renderHist()}}
+});
+
+SUBS=S.subs=S.subs||[];
+function myId(){var k="scr-uid",v=null;try{v=localStorage.getItem(k);if(!v){v="u"+Math.random().toString(36).slice(2,10);localStorage.setItem(k,v)}}catch(e){}return v||"u"+Date.now()}
+function pack(){var o=mine();o.id=myId();o.ts=Date.now();return o}
+function enc(o){return"SCR1:"+btoa(unescape(encodeURIComponent(JSON.stringify(o))))}
+function dec(t){try{return JSON.parse(decodeURIComponent(escape(atob(t))))}catch(e){return null}}
+function addSub(o){var i=SUBS.findIndex(function(x){return x.id===o.id});if(i>=0){if((o.ts||0)>=(SUBS[i].ts||0))SUBS[i]=o}else SUBS.push(o);S.subs=SUBS}
+function shareText(){var o=pack();if(!["a","v","q","b","x"].some(function(k){return o[k]})){alert("請先填寫至少一項想法。");return null}return"【SCR 工作坊建議】\n"+subText(o)+"\n\n（以下係資料代碼，請唔好修改）\n"+enc(o)}
+$("sh-wa").onclick=function(){var t=shareText();if(t)window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank")};
+$("sh-mail").onclick=function(){var t=shareText();if(t)location.href="mailto:?subject="+encodeURIComponent("SCR 工作坊建議")+"&body="+encodeURIComponent(t)};
+$("sh-cp").onclick=function(){var t=shareText();if(t)cp(t,this)};
+$("padd").onclick=function(){var m=$("paste").value.match(/SCR1:[A-Za-z0-9+\/=]+/g)||[],n=0;
+  m.forEach(function(t){var o=dec(t.slice(5));if(o&&o.id){addSub(o);n++}});
+  save();renderMerge();$("pmsg").textContent=n?"已加入／更新 "+n+" 份建議。":"搵唔到有效嘅資料代碼，請確認有貼晒最尾嗰行 SCR1: 開頭嘅代碼。";if(n)$("paste").value=""};
+$("pself").onclick=function(){var o=pack();if(!["a","v","q","b","x"].some(function(k){return o[k]})){alert("你喺「填寫」tab 未有填內容。");return}addSub(o);save();renderMerge();$("pmsg").textContent="已加入你自己嘅建議。"};
+$("pclr").onclick=function(){if(confirm("清除所有已加入嘅義工建議？（建議先儲存版本）")){SUBS.length=0;S.subs=SUBS;save();renderMerge()}};
+$("bk").onclick=function(){var b=new Blob([JSON.stringify({v:1,S:S})],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="SCR-rundown-備份-"+new Date().toISOString().slice(0,10)+".json";document.body.appendChild(a);a.click();document.body.removeChild(a)};
+$("rs").onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d.S||!d.S.r)throw 0;if(!confirm("會覆蓋呢部機而家嘅所有內容。確定？"))return;S=d.S;save();location.reload()}catch(e){alert("備份檔案唔正確")}};r.readAsText(f)};
+HIST=S.hist||[];renderHist();
+wrap(document.querySelector("main"));
+renderRows();renderCk();renderModes();renderMerge();update();
+$("st").textContent="💾 資料只存喺呢部機（瀏覽器）。換機或交接，請用「輸出」tab 嘅備份。";
+</script>
+</body>
+</html>
